@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 
 class Conta:
     def __init__(self, nome, cpf, numero_conta, senha, saldo=0.0):
@@ -8,13 +7,20 @@ class Conta:
         self.numero_conta = numero_conta
         self.senha = senha
         self.saldo = saldo
-        self.historico = []
 
 class Administrador:
-    def __init__(self, nome_usuario, senha):
-        self.nome_usuario = nome_usuario
-        self.senha = senha
+    def __init__(self):
+        self.nome_usuario = ""
+        self.senha = ""
         self.contas = []
+
+    def criar_usuario_senha(self):
+        print("="*30)
+        print("Criar Usuário e Senha do Administrador")
+        print("="*30)
+        self.nome_usuario = input("Digite o nome de usuário para o administrador: ").strip()
+        self.senha = input("Digite a senha para o administrador: ").strip()
+        print("\nUsuário e senha do administrador criados com sucesso.")
 
     def autenticar_admin(self):
         print("\n" + "="*30)
@@ -81,11 +87,10 @@ class Cliente:
             print("2. Depositar")
             print("3. Sacar")
             print("4. Transferir")
-            print("5. Imprimir Relatório da Conta")
-            print("6. Sair")
+            print("5. Sair")
             print("="*30)
             
-            escolha = input("Escolha uma opção (1-6): ")
+            escolha = input("Escolha uma opção (1-5): ")
 
             if escolha == '1':
                 self.verificar_saldo()
@@ -96,9 +101,7 @@ class Cliente:
             elif escolha == '4':
                 self.transferir()
             elif escolha == '5':
-                self.imprimir_relatorio()
-            elif escolha == '6':
-                print("Obrigado por usar nossos serviços. Até logo!")
+                print("Obrigado por usar nosso ATM. Até logo!")
                 break
             else:
                 print("Opção inválida. Tente novamente.")
@@ -123,8 +126,6 @@ class Cliente:
 
         if valor > 0:
             self.conta.saldo += valor
-            data_deposito = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.conta.historico.append(f"Depósito de R${valor:.2f} em {data_deposito}")
             print(f"\nDepósito de R${valor:.2f} realizado com sucesso.")
         else:
             print("\nValor inválido.")
@@ -143,8 +144,6 @@ class Cliente:
 
         if 0 < valor <= self.conta.saldo:
             self.conta.saldo -= valor
-            data_saque = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.conta.historico.append(f"Saque de R${valor:.2f} em {data_saque}")
             print(f"\nSaque de R${valor:.2f} realizado com sucesso.")
         else:
             print("\nSaldo insuficiente ou valor inválido.")
@@ -167,36 +166,21 @@ class Cliente:
                 if 0 < valor <= self.conta.saldo:
                     self.conta.saldo -= valor
                     conta_destino.saldo += valor
-                    data_transferencia = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-                    nome_destino = conta_destino.nome
-                    self.conta.historico.append(f"Transferência de R${valor:.2f} para {nome_destino} ({conta_destino.numero_conta}) em {data_transferencia}")
-                    conta_destino.historico.append(f"Transferência recebida de R${valor:.2f} de {self.conta.nome} ({self.conta.numero_conta}) em {data_transferencia}")
-
-                    print(f"\nTransferência de R${valor:.2f} para {nome_destino} realizada com sucesso.")
+                    print(f"\nTransferência de R${valor:.2f} realizada com sucesso.")
                 else:
                     print("\nSaldo insuficiente ou valor inválido.")
                 return
 
         print("\nConta de destino não encontrada.")
 
-    def imprimir_relatorio(self):
-        print("\n" + "="*30)
-        print("Relatório da Conta")
-        print("="*30)
-        print("Nome: {}".format(self.conta.nome))
-        print("Número da Conta: {}".format(self.conta.numero_conta))
-        print("CPF: {}".format(self.conta.cpf))
-        print("Saldo Atual: R${:.2f}".format(self.conta.saldo))
-        print("\nHistórico:")
-        for registro in self.conta.historico:
-            print(registro)
+administrador_principal = Administrador()
 
-administrador_principal = Administrador("admin", "admin")
+# Criar usuário e senha para o administrador antes de iniciar o programa
+administrador_principal.criar_usuario_senha()
 
 while True:
     print("\n" + "="*30)
-    print("Bem-vindo ao ATM Bancário!")
+    print("Bem-vindo ao Sistema Bancário!")
     print("="*30)
     print("1. Administrador")
     print("2. Cliente")
@@ -244,7 +228,7 @@ while True:
             print("\nNenhuma conta cadastrada. Encerrando o programa.")
 
     elif escolha_inicial == '3':
-        print("\nEncerrando o Sistema. Até logo!")
+        print("\nEncerrando o Sistema Bancário. Até logo!")
         break
 
     else:
