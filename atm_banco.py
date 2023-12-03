@@ -18,8 +18,20 @@ class Administrador:
         print("="*30)
         print("Criar Usuário e Senha do Administrador")
         print("="*30)
-        self.nome_usuario = input("Digite o nome de usuário para o administrador: ").strip()
-        self.senha = input("Digite a senha para o administrador: ").strip()
+        while True:
+            self.nome_usuario = input("Digite o nome de usuário para o administrador: ").strip()
+            if self.nome_usuario:
+                break
+            else:
+                print("Nome de usuário não pode ficar vazio. Tente novamente.")
+
+        while True:
+            self.senha = input("Digite a senha para o administrador: ").strip()
+            if self.senha:
+                break
+            else:
+                print("Senha não pode ficar vazia. Tente novamente.")
+
         print("\nUsuário e senha do administrador criados com sucesso.")
 
     def autenticar_admin(self):
@@ -35,12 +47,19 @@ class Administrador:
         print("\n" + "="*30)
         print("Criar Nova Conta")
         print("="*30)
-        nome = input("Digite o nome do cliente: ").strip()
-        cpf = input("Digite o CPF do cliente: ").strip()
+        while True:
+            nome = input("Digite o nome do cliente: ").strip()
+            if nome and nome.replace(" ", "").isalpha():
+                break
+            else:
+                print("Nome não pode ficar vazio e deve conter apenas letras e espaços. Tente novamente.")
 
-        if not nome or not cpf:
-            print("Por favor, preencha todos os campos.")
-            return
+        while True:
+            cpf = input("Digite o CPF do cliente (11 números): ").strip()
+            if cpf and cpf.isdigit() and len(cpf) == 11:
+                break
+            else:
+                print("CPF não pode ficar vazio, deve conter apenas números, e ter 11 caracteres. Tente novamente.")
 
         for conta in self.contas:
             if conta.cpf == cpf:
@@ -48,34 +67,25 @@ class Administrador:
                 return
 
         numero_conta = self.gerar_numero_conta()
-        senha = input("Digite a senha para a conta: ").strip()
+        while True:
+            senha = input("Digite a senha para a conta: ").strip()
+            if senha:
+                break
+            else:
+                print("Senha não pode ficar vazia. Tente novamente.")
 
         nova_conta = Conta(nome, cpf, numero_conta, senha)
         self.contas.append(nova_conta)
         print("\nConta criada com sucesso!")
         print(f"O número da conta para {nome} é: {numero_conta}")
 
-    def alterar_usuario_senha(self):
-        if not self.autenticar_admin():
-            print("Autenticação de administrador falhou. Não autorizado a alterar usuário e senha.")
-            return
-
-        print("\n" + "="*30)
-        print("Alterar Nome de Usuário e Senha")
-        print("="*30)
-        novo_usuario = input("Digite o novo nome de usuário: ").strip()
-        nova_senha = input("Digite a nova senha: ").strip()
-
-        self.nome_usuario = novo_usuario
-        self.senha = nova_senha
-        print("\nNome de usuário e senha alterados com sucesso.")
-
     def gerar_numero_conta(self):
         return str(random.randint(100000, 999999))
 
 class Cliente:
-    def __init__(self, conta):
+    def __init__(self, conta, administrador):
         self.conta = conta
+        self.administrador = administrador
 
     def menu_conta(self):
         while True:
@@ -89,7 +99,7 @@ class Cliente:
             print("4. Transferir")
             print("5. Sair")
             print("="*30)
-            
+
             escolha = input("Escolha uma opção (1-5): ")
 
             if escolha == '1':
@@ -161,12 +171,12 @@ class Cliente:
 
         valor = float(valor_str)
 
-        for conta_destino in administrador.contas:
+        for conta_destino in self.administrador.contas:
             if conta_destino.numero_conta == numero_destino:
                 if 0 < valor <= self.conta.saldo:
                     self.conta.saldo -= valor
                     conta_destino.saldo += valor
-                    print(f"\nTransferência de R${valor:.2f} realizada com sucesso.")
+                    print(f"\nTransferência de R${valor:.2f} para {conta_destino.nome} realizada com sucesso.")
                 else:
                     print("\nSaldo insuficiente ou valor inválido.")
                 return
@@ -194,17 +204,14 @@ while True:
                 print("\n" + "="*30)
                 print("Bem-vindo, Administrador!")
                 print("1. Criar Conta")
-                print("2. Alterar Nome de Usuário e Senha")
-                print("3. Voltar para o Menu Inicial")
+                print("2. Voltar para o Menu Inicial")
                 print("="*30)
 
-                escolha_admin = input("Escolha uma opção (1-3): ")
+                escolha_admin = input("Escolha uma opção (1-2): ")
 
                 if escolha_admin == '1':
                     administrador_principal.criar_conta()
                 elif escolha_admin == '2':
-                    administrador_principal.alterar_usuario_senha()
-                elif escolha_admin == '3':
                     print("\nEncerrando sessão de administrador.")
                     break
                 else:
@@ -219,7 +226,7 @@ while True:
 
             for conta_cliente in administrador_principal.contas:
                 if conta_cliente.numero_conta == numero_conta_cliente and conta_cliente.senha == senha_cliente:
-                    cliente = Cliente(conta_cliente)
+                    cliente = Cliente(conta_cliente, administrador_principal)
                     cliente.menu_conta()
                     break
             else:
